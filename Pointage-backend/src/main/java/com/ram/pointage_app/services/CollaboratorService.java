@@ -27,11 +27,14 @@ public class CollaboratorService {
     }
 
     public Collaborator updateCollaborator(Long id,Collaborator collaborator) {
-        Optional<Collaborator> optional = collaboratorRepo.findById(collaborator.id);
+        Optional<Collaborator> optional = collaboratorRepo.findById(id);
         if (optional.isPresent()) {
             Collaborator updated=optional.get();
             updated.setFirstname(collaborator.getFirstname());
             updated.setLastname(collaborator.getLastname());
+            updated.setEmail(collaborator.getEmail());
+            updated.setPhone(collaborator.getPhone());
+            collaboratorRepo.save(updated);
         }
         return optional.get();
     }

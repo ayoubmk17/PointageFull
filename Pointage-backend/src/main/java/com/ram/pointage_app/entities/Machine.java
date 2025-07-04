@@ -1,21 +1,22 @@
 package com.ram.pointage_app.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
 @Data
 @Table
-
 public class Machine {
+
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     public Long id;
-    public String MacAdress;
-    public String OrdName;
+    public String macAddress;
+    public String ordName;
 
     @OneToOne
-    public Collaborator Collaborator;
-
-
+    @JsonIgnore
+    public Collaborator collaborator;
 
 }

@@ -3,6 +3,7 @@ package com.ram.pointage_app.controllers;
 import com.ram.pointage_app.entities.Shift;
 import com.ram.pointage_app.services.ShiftService;
 import org.springframework.http.ResponseEntity;
+import lombok.*;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -10,28 +11,29 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@CrossOrigin(origins = "*")
+@RequiredArgsConstructor
 @RequestMapping("/shift")
+@CrossOrigin(origins = "*")
 public class ShiftController {
-    private ShiftService shiftService;
-
-    public ShiftController(ShiftService shiftService) {
-        this.shiftService = shiftService;
-    }
+    private final ShiftService shiftService;
 
     @GetMapping
-    public ResponseEntity<List<Shift>> getShifts() {
+    public ResponseEntity<List<Shift>> getAllShifts() {
         return ResponseEntity.ok(shiftService.getShifts());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Shift> getShift(@PathVariable Long id) {
+    public ResponseEntity<Shift> getShiftById(@PathVariable Long id) {
         return ResponseEntity.ok(shiftService.getShift(id));
     }
 
     @PostMapping
-    public ResponseEntity<Shift> createShift(@RequestBody Shift shift) {
-        return ResponseEntity.ok(shiftService.createShift(shift));
+    public ResponseEntity<?> createShift(@RequestBody Shift shift) {
+        try {
+            return ResponseEntity.ok(shiftService.createShift(shift));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @DeleteMapping("/{id}")
