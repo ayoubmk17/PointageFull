@@ -23,7 +23,8 @@ const Login = ({ onLogin }) => {
     try {
       // Créer le shift (le backend gère la machine)
       const now = new Date().toISOString();
-      const shiftRes = await createShift({ dateEntree: now, collaborator: { email: email.trim() } });
+      const ordName = window.location.hostname;
+      const shiftRes = await createShift({ dateEntree: now, collaborator: { email: email.trim() }, machine: { ordName } });
       const shiftId = shiftRes.data.id;
       setLoading(false);
       onLogin({ email, shiftId });

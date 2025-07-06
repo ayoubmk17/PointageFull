@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface MachineRepo extends JpaRepository<Machine, Long> {
+    java.util.Optional<Machine> findByOrdName(String ordName);
+    java.util.Optional<Machine> findByMacAddress(String macAddress);
 }

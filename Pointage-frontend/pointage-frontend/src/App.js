@@ -3,13 +3,13 @@ import Login from './components/Auth/Login';
 import Pointage from './components/Pointage/Pointage';
 
 function App() {
-  const [userEmail, setUserEmail] = useState('');
+  const [user, setUser] = useState(null);
 
-  if (!userEmail) {
-    return <Login onLogin={setUserEmail} />;
+  if (!user) {
+    return <Login onLogin={setUser} />;
   }
 
-  return <Pointage email={userEmail} onLogout={() => setUserEmail('')} />;
+  return <Pointage email={user.email} onLogout={() => setUser(null)} />;
 }
 
 export default App; 

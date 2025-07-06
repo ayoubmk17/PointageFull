@@ -27,13 +27,9 @@ public class ShiftService {
     }
 
     public Shift createShift(Shift shift) {
-        // Recherche du collaborateur par id ou par email
         Collaborator collaborator = null;
         if (shift.getCollaborator() != null) {
-            if (shift.getCollaborator().getId() != null) {
-                collaborator = collaboratorRepo.findById(shift.getCollaborator().getId())
-                        .orElseThrow(() -> new RuntimeException("Collaborator not found"));
-            } else if (shift.getCollaborator().getEmail() != null) {
+            if (shift.getCollaborator().getEmail() != null) {
                 collaborator = collaboratorRepo.findByEmail(shift.getCollaborator().getEmail())
                         .orElseThrow(() -> new RuntimeException("Collaborator with email '" + shift.getCollaborator().getEmail() + "' not found"));
             }
@@ -43,11 +39,25 @@ public class ShiftService {
         }
         shift.setCollaborator(collaborator);
 
-        // Vérification et chargement de la machine existante
-        if (shift.getMachine() != null && shift.getMachine().getId() != null) {
-            Machine existingMachine = machineRepo.findById(shift.getMachine().getId())
-                    .orElseThrow(() -> new RuntimeException("Machine not found"));
-            shift.setMachine(existingMachine);
+        // Vérification et chargement de la machine existante ou création si besoin
+        if (shift.getMachine() != null) {
+            Machine machine = null;
+            if (shift.getMachine().getId() != null) {
+                machine = machineRepo.findById(shift.getMachine().getId())
+                        .orElseThrow(() -> new RuntimeException("Machine not found"));
+            } else if (shift.getMachine().getMacAddress() != null) {
+                machine = machineRepo.findByMacAddress(shift.getMachine().getMacAddress())
+                        .orElseGet(() -> machineRepo.save(shift.getMachine()));
+            } else if (shift.getMachine().getOrdName() != null) {
+                machine = machineRepo.findByOrdName(shift.getMachine().getOrdName())
+                        .orElseGet(() -> machineRepo.save(shift.getMachine()));
+            }
+            if (machine == null) {
+                throw new RuntimeException("Machine information is required");
+            }
+            shift.setMachine(machine);
+        } else {
+            throw new RuntimeException("Machine information is required");
         }
 
         return shiftRepo.save(shift);
