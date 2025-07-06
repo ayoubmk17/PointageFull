@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import bgImg from '../../assets/ram-bg.png';
+import { createCollaborator, createShift } from '../../services/api';
 
 const RAM_RED = '#a60d1a';
 const RAM_GOLD = '#bfa046';
@@ -9,15 +10,27 @@ const RAM_TEXT = '#222222';
 const Login = ({ onLogin }) => {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email || !email.includes('@')) {
       setError('Veuillez entrer un email valide.');
       return;
     }
     setError('');
-    onLogin(email);
+    setLoading(true);
+    try {
+      // Créer le shift (le backend gère la machine)
+      const now = new Date().toISOString();
+      const shiftRes = await createShift({ dateEntree: now, collaborator: { email: email.trim() } });
+      const shiftId = shiftRes.data.id;
+      setLoading(false);
+      onLogin({ email, shiftId });
+    } catch (err) {
+      setLoading(false);
+      setError("Erreur lors de la création du pointage. Vérifiez l'email ou réessayez.");
+    }
   };
 
   return (
@@ -76,8 +89,8 @@ const Login = ({ onLogin }) => {
             style={{ width: '100%', padding: 12, marginBottom: 14, border: `1.5px solid ${RAM_GOLD}`, borderRadius: 6, fontSize: 16, outline: 'none', color: RAM_TEXT }}
           />
           {error && <div style={{ color: RAM_RED, marginBottom: 10, textAlign: 'center' }}>{error}</div>}
-          <button type="submit" style={{ width: '100%', padding: 14, background: RAM_RED, color: '#fff', border: 'none', borderRadius: 8, fontWeight: 600, fontSize: 18, letterSpacing: 1, boxShadow: '0 2px 8px #a60d1a22', cursor: 'pointer', transition: 'background 0.2s' }}>
-            Entrer
+          <button type="submit" disabled={loading} style={{ width: '100%', padding: 14, background: RAM_RED, color: '#fff', border: 'none', borderRadius: 8, fontWeight: 600, fontSize: 18, letterSpacing: 1, boxShadow: '0 2px 8px #a60d1a22', cursor: loading ? 'not-allowed' : 'pointer', transition: 'background 0.2s' }}>
+            {loading ? 'Connexion...' : 'Entrer'}
           </button>
         </form>
       </div>

@@ -27,14 +27,23 @@ public class ShiftService {
     }
 
     public Shift createShift(Shift shift) {
-        // Verify and load existing collaborator
-        if (shift.getCollaborator() != null && shift.getCollaborator().getId() != null) {
-            Collaborator existingCollaborator = collaboratorRepo.findById(shift.getCollaborator().getId())
-                    .orElseThrow(() -> new RuntimeException("Collaborator not found"));
-            shift.setCollaborator(existingCollaborator);
+        // Recherche du collaborateur par id ou par email
+        Collaborator collaborator = null;
+        if (shift.getCollaborator() != null) {
+            if (shift.getCollaborator().getId() != null) {
+                collaborator = collaboratorRepo.findById(shift.getCollaborator().getId())
+                        .orElseThrow(() -> new RuntimeException("Collaborator not found"));
+            } else if (shift.getCollaborator().getEmail() != null) {
+                collaborator = collaboratorRepo.findByEmail(shift.getCollaborator().getEmail())
+                        .orElseThrow(() -> new RuntimeException("Collaborator with email '" + shift.getCollaborator().getEmail() + "' not found"));
+            }
         }
+        if (collaborator == null) {
+            throw new RuntimeException("Collaborator information is required");
+        }
+        shift.setCollaborator(collaborator);
 
-        // Verify and load existing machine
+        // Vérification et chargement de la machine existante
         if (shift.getMachine() != null && shift.getMachine().getId() != null) {
             Machine existingMachine = machineRepo.findById(shift.getMachine().getId())
                     .orElseThrow(() -> new RuntimeException("Machine not found"));
