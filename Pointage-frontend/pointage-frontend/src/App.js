@@ -9,7 +9,7 @@ function App() {
     return <Login onLogin={setUser} />;
   }
 
-  return <Pointage email={user.email} onLogout={() => setUser(null)} />;
+  return <Pointage email={user.email} shiftId={user.shiftId} onLogout={() => setUser(null)} />;
 }
 
 export default App; 

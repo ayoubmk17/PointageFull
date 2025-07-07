@@ -18,3 +18,4 @@ export const getShifts = () => axios.get('/shift');
 export const getShiftById = (id) => axios.get(`/shift/${id}`);
 export const createShift = (shift) => axios.post('/shift', shift);
 export const deleteShift = (id) => axios.delete(`/shift/${id}`);
+export const updateShift = (id, shift) => axios.put(`/shift/${id}`, shift);

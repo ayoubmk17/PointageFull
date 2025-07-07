@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import bgImg from '../../assets/ram-bg.png';
-import { createCollaborator, createShift } from '../../services/api';
+import { createShift } from '../../services/api';
 
 const RAM_RED = '#a60d1a';
 const RAM_GOLD = '#bfa046';
-const RAM_BG = '#f5f5f5';
 const RAM_TEXT = '#222222';
 
 const Login = ({ onLogin }) => {
