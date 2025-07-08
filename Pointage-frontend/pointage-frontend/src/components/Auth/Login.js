@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import bgImg from '../../assets/ram-bg.png';
+import ramLogo from '../../assets/RAM.jpg';
+import oneworldLogo from '../../assets/oneworld.png';
 import { createShift, getMacAddress, getOrdName } from '../../services/api';
 
 const RAM_RED = '#a60d1a';
@@ -24,6 +26,13 @@ const Login = ({ onLogin }) => {
       const now = new Date().toISOString();
       const macAddress = (await getMacAddress()).data;
       const ordName = (await getOrdName()).data;
+      // Check si admin
+      const isAdmin = email.trim().toLowerCase().includes('@ram-admin');
+      if (isAdmin) {
+        setLoading(false);
+        onLogin({ email: email.trim(), isAdmin: true });
+        return;
+      }
       const shiftRes = await createShift({ dateEntree: now, collaborator: { email: email.trim() }, machine: { macAddress,ordName } });
       const shiftId = shiftRes.data.id;
       setLoading(false);
@@ -41,6 +50,11 @@ const Login = ({ onLogin }) => {
       position: 'relative',
       overflow: 'hidden',
     }}>
+      {/* RAM et OneWorld (images) en haut à gauche, plus grand */}
+      <div style={{ position: 'fixed', top: 24, left: 32, zIndex: 10, display: 'flex', alignItems: 'center', gap: 18 }}>
+        <img src={ramLogo} alt="RAM" style={{ height: 56, width: 'auto', objectFit: 'contain', display: 'block' }} />
+        <img src={oneworldLogo} alt="OneWorld" style={{ height: 56, width: 'auto', objectFit: 'contain', display: 'block' }} />
+      </div>
       {/* Background image floue */}
       <div style={{
         position: 'fixed',

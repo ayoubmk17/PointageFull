@@ -123,7 +123,7 @@ const Pointage = ({ email, shiftId, onLogout }) => {
             <div key={s.id || i} style={{ padding: '6px 0', borderBottom: '1px solid #eee', fontSize: 15 }}>
               <b>Date entrée :</b> {s.dateEntree ? dayjs(s.dateEntree).format('DD/MM/YYYY HH:mm:ss') : 'N/A'}<br />
               <b>Date sortie :</b> {s.dateSortie ? dayjs(s.dateSortie).format('DD/MM/YYYY HH:mm:ss') : 'N/A'}<br />
-              <b>Durée :</b> {s.duree ? s.duree + ' min' : 'N/A'}
+              <b>Durée :</b> {s.duree ? s.duree + ' min' : '0 min'}
             </div>
           ))}
         </div>
