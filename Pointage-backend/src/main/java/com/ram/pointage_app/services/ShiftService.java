@@ -70,4 +70,16 @@ public class ShiftService {
         }
         return "Shift not found";
     }
+
+    public Shift updateShift(Long id, Shift updatedShift) {
+        Shift shift = shiftRepo.findById(id)
+            .orElseThrow(() -> new RuntimeException("Shift not found"));
+        if (updatedShift.getDateSortie() != null) {
+            shift.setDateSortie(updatedShift.getDateSortie());
+        }
+        if (updatedShift.getDuree() != 0) {
+            shift.setDuree(updatedShift.getDuree());
+        }
+        return shiftRepo.save(shift);
+    }
 }

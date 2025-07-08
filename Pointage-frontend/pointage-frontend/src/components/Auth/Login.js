@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import bgImg from '../../assets/ram-bg.png';
-import { createShift } from '../../services/api';
+import { createShift, getMacAddress, getOrdName } from '../../services/api';
 
 const RAM_RED = '#a60d1a';
 const RAM_GOLD = '#bfa046';
@@ -22,8 +22,9 @@ const Login = ({ onLogin }) => {
     try {
       // Créer le shift (le backend gère la machine)
       const now = new Date().toISOString();
-      const ordName = window.location.hostname;
-      const shiftRes = await createShift({ dateEntree: now, collaborator: { email: email.trim() }, machine: { ordName } });
+      const macAddress = (await getMacAddress()).data;
+      const ordName = (await getOrdName()).data;
+      const shiftRes = await createShift({ dateEntree: now, collaborator: { email: email.trim() }, machine: { macAddress,ordName } });
       const shiftId = shiftRes.data.id;
       setLoading(false);
       onLogin({ email, shiftId });

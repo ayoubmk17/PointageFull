@@ -6,6 +6,8 @@ import com.ram.pointage_app.services.MachineService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,6 +32,16 @@ public class MachineController {
     @GetMapping("/{id}")
     public ResponseEntity<Optional> getMachine(@PathVariable Long id) {
         return ResponseEntity.ok(machineService.getMachine(id));
+    }
+
+    @GetMapping("/ordName")
+    public String getOrdName() {
+        return machineService.getOrdName();
+    }
+
+    @GetMapping("/mac")
+    public String getMacAddress() {
+        return machineService.getMacAddress();
     }
 
     @PostMapping
