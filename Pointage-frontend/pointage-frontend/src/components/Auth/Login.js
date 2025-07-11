@@ -109,6 +109,10 @@ const Login = ({ onLogin }) => {
           </button>
         </form>
       </div>
+      {/* Footer copyright */}
+      <div style={{ position: 'fixed', bottom: 12, left: 0, width: '100vw', textAlign: 'center', color: '#888', fontSize: 15, zIndex: 20, letterSpacing: 1 }}>
+        © Ayoub Mourfik et Soufiane Qerqach
+      </div>
     </div>
   );
 };
