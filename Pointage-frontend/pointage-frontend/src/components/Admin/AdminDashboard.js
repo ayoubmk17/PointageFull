@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getCollaborators, createCollaborator, updateCollaborator, deleteCollaborator, getMachines, getShifts } from '../../services/api';
+import { getCollaborators, createCollaborator, updateCollaborator, deleteCollaborator, getMachines, getShifts, deleteMachine } from '../../services/api';
 import bgImg from '../../assets/ram-bg.png';
 import ramLogo from '../../assets/RAM.jpg';
 import oneworldLogo from '../../assets/oneworld.png';
@@ -105,6 +105,18 @@ const AdminDashboard = ({ email, onLogout }) => {
       getCollaborators().then(res => {
         setCollaborators(res.data);
         setLoadingCollab(false);
+      });
+    }
+  };
+
+  // Suppression machine
+  const handleDeleteMachine = async (id) => {
+    if (window.confirm('Supprimer cette machine ?')) {
+      await deleteMachine(id);
+      setLoadingMachines(true);
+      getMachines().then(res => {
+        setMachines(res.data);
+        setLoadingMachines(false);
       });
     }
   };
@@ -277,6 +289,7 @@ const AdminDashboard = ({ email, onLogout }) => {
                     <th style={{ padding: 8, border: '1px solid #eee' }}>ID</th>
                     <th style={{ padding: 8, border: '1px solid #eee' }}>Nom d'ordinateur</th>
                     <th style={{ padding: 8, border: '1px solid #eee' }}>Adresse MAC</th>
+                    <th style={{ padding: 8, border: '1px solid #eee' }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -285,6 +298,9 @@ const AdminDashboard = ({ email, onLogout }) => {
                       <td style={{ padding: 8, border: '1px solid #eee' }}>{m.id}</td>
                       <td style={{ padding: 8, border: '1px solid #eee' }}>{m.ordName}</td>
                       <td style={{ padding: 8, border: '1px solid #eee' }}>{m.macAddress}</td>
+                      <td style={{ padding: 8, border: '1px solid #eee' }}>
+                        <button onClick={() => handleDeleteMachine(m.id)} style={{ background: '#a60d1a', color: '#fff', border: 'none', borderRadius: 4, padding: '4px 10px', cursor: 'pointer' }}>Supprimer</button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>

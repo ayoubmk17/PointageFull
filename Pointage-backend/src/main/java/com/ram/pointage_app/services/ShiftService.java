@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.sql.Date;
+import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +40,13 @@ public class ShiftService {
             throw new RuntimeException("Collaborator information is required");
         }
         shift.setCollaborator(collaborator);
+
+        // Limite de 2 shifts par jour
+        LocalDate today = LocalDate.now();
+        int count = shiftRepo.countShiftsForCollaboratorOnDate(collaborator.getId(), Date.valueOf(today));
+        if (count >= 2) {
+            throw new RuntimeException("Vous avez déjà pointé deux fois aujourd'hui.");
+        }
 
         // Vérification et chargement de la machine existante ou création si besoin
         if (shift.getMachine() != null) {

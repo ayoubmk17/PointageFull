@@ -39,7 +39,7 @@ const Login = ({ onLogin }) => {
       onLogin({ email, shiftId });
     } catch (err) {
       setLoading(false);
-      setError("Erreur lors de la création du pointage. Vérifiez l'email ou réessayez.");
+      setError("Erreur. Vérifiez l'email ou tu as deja pointé deux fois aujourd'hui.");
     }
   };
 
