@@ -3,6 +3,8 @@ import { getCollaborators, createCollaborator, updateCollaborator, deleteCollabo
 import bgImg from '../../assets/ram-bg.png';
 import ramLogo from '../../assets/RAM.jpg';
 import oneworldLogo from '../../assets/oneworld.png';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 
 const TABS = [
   { key: 'dashboard', label: 'Dashboard' },
@@ -169,6 +171,45 @@ const AdminDashboard = ({ email, onLogout }) => {
     setShiftSort(s => ({ key, asc: s.key === key ? !s.asc : true }));
   };
 
+  // Export Excel collaborateurs
+  const handleExportCollaborators = () => {
+    const data = collaborators.map(c => ({
+      ID: c.id,
+      Prénom: c.firstname,
+      Nom: c.lastname,
+      Email: c.email,
+      Téléphone: c.phone
+    }));
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Collaborateurs');
+    const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    saveAs(new Blob([excelBuffer], { type: 'application/octet-stream' }), 'collaborateurs.xlsx');
+  };
+
+  // Export Excel shifts (filtrage possible)
+  const [shiftExportEmail, setShiftExportEmail] = useState('ALL');
+  const handleExportShifts = () => {
+    let filtered = shifts;
+    if (shiftExportEmail !== 'ALL') {
+      filtered = shifts.filter(s => s.collaborator && s.collaborator.email === shiftExportEmail);
+    }
+    const data = filtered.map(s => ({
+      ID: s.id,
+      Collaborateur: s.collaborator ? s.collaborator.email : '',
+      Ordinateur: s.machine ? s.machine.ordName : '',
+      'MAC Address': s.machine ? s.machine.macAddress : '',
+      'Date entrée': s.dateEntree,
+      'Date sortie': s.dateSortie,
+      Durée: s.duree
+    }));
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Shifts');
+    const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    saveAs(new Blob([excelBuffer], { type: 'application/octet-stream' }), 'shifts.xlsx');
+  };
+
   return (
     <div style={{ minHeight: '100vh', width: '100vw', position: 'relative', overflow: 'hidden' }}>
       {/* Background image floue */}
@@ -229,8 +270,11 @@ const AdminDashboard = ({ email, onLogout }) => {
         {/* Collaborateurs */}
         {tab === 'collaborators' && (
           <div style={{ marginTop: 24, textAlign: 'left' }}>
-            <h2 style={{ color: '#a60d1a', fontWeight: 600, marginBottom: 18 }}>Collaborateurs</h2>
-            <button onClick={openAddCollab} style={{ background: '#bfa046', color: '#fff', border: 'none', borderRadius: 6, padding: '8px 18px', fontWeight: 600, fontSize: 15, marginBottom: 18, cursor: 'pointer' }}>+ Ajouter un collaborateur</button>
+            <h2 style={{ color: '#a60d1a', fontWeight: 600, marginBottom: 18, display: 'inline-block' }}>Collaborateurs</h2>
+            <div style={{ display: 'flex', gap: 14, alignItems: 'center', marginBottom: 18 }}>
+              <button onClick={handleExportCollaborators} style={{ background: '#bfa046', color: '#fff', border: 'none', borderRadius: 6, padding: '8px 18px', fontWeight: 600, fontSize: 15, cursor: 'pointer', verticalAlign: 'middle' }}>Télécharger</button>
+              <button onClick={openAddCollab} style={{ background: '#bfa046', color: '#fff', border: 'none', borderRadius: 6, padding: '8px 18px', fontWeight: 600, fontSize: 15, cursor: 'pointer', verticalAlign: 'middle' }}>+ Ajouter un collaborateur</button>
+            </div>
             {loadingCollab ? <div>Chargement...</div> : (
               <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: 10 }}>
                 <thead>
@@ -311,7 +355,16 @@ const AdminDashboard = ({ email, onLogout }) => {
         {/* Shifts */}
         {tab === 'shifts' && (
           <div style={{ marginTop: 24, textAlign: 'left' }}>
-            <h2 style={{ color: '#222', fontWeight: 600, marginBottom: 18 }}>Shifts</h2>
+            <h2 style={{ color: '#222', fontWeight: 600, marginBottom: 0 }}>Shifts</h2>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginTop: 8, marginBottom: 10 }}>
+              <select value={shiftExportEmail} onChange={e => setShiftExportEmail(e.target.value)} style={{ padding: '6px 12px', borderRadius: 6, border: '1.5px solid #bfa046', fontSize: 15 }}>
+                <option value="ALL">Tous les collaborateurs</option>
+                {Array.from(new Set(shifts.map(s => s.collaborator?.email).filter(Boolean))).map(email => (
+                  <option key={email} value={email}>{email}</option>
+                ))}
+              </select>
+              <button onClick={handleExportShifts} style={{ background: '#bfa046', color: '#fff', border: 'none', borderRadius: 6, padding: '8px 18px', fontWeight: 600, fontSize: 15, cursor: 'pointer' }}>Télécharger</button>
+            </div>
             {/* Résumé total des durées par email */}
             {Object.keys(totalDureeByEmail).length > 0 && (
               <div style={{ marginBottom: 18 }}>
