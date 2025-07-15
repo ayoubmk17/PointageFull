@@ -10,6 +10,7 @@ const RAM_TEXT = '#222222';
 
 const Login = ({ onLogin }) => {
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -21,25 +22,33 @@ const Login = ({ onLogin }) => {
     }
     setError('');
     setLoading(true);
+    const isAdmin = email.trim().toLowerCase() === 'admin@ram-admin.com';
+    if (isAdmin) {
+      if (password !== 'admin1234') {
+        setLoading(false);
+        setError('Mot de passe administrateur incorrect.');
+        return;
+      }
+      setLoading(false);
+      onLogin({ email: email.trim(), isAdmin: true });
+      return;
+    }
     try {
       // Créer le shift (le backend gère la machine)
       const now = new Date().toISOString();
       const macAddress = (await getMacAddress()).data;
       const ordName = (await getOrdName()).data;
-      // Check si admin
-      const isAdmin = email.trim().toLowerCase().includes('@ram-admin');
-      if (isAdmin) {
-        setLoading(false);
-        onLogin({ email: email.trim(), isAdmin: true });
-        return;
-      }
       const shiftRes = await createShift({ dateEntree: now, collaborator: { email: email.trim() }, machine: { macAddress,ordName } });
       const shiftId = shiftRes.data.id;
       setLoading(false);
       onLogin({ email, shiftId });
     } catch (err) {
       setLoading(false);
-      setError("Erreur. Vérifiez l'email ou tu as deja pointé deux fois aujourd'hui.");
+      if (err.response && err.response.data) {
+        setError(err.response.data);
+      } else {
+        setError("Erreur lors de la création du pointage. Vérifiez l'email ou réessayez.");
+      }
     }
   };
 
@@ -78,7 +87,7 @@ const Login = ({ onLogin }) => {
       }} />
       {/* Formulaire */}
       <div style={{
-        maxWidth: 420,
+        maxWidth: 520,
         margin: '80px auto',
         background: '#fff',
         borderRadius: 16,
@@ -101,10 +110,20 @@ const Login = ({ onLogin }) => {
             placeholder="Votre email"
             value={email}
             onChange={e => setEmail(e.target.value)}
-            style={{ width: '100%', padding: 12, marginBottom: 14, border: `1.5px solid ${RAM_GOLD}`, borderRadius: 6, fontSize: 16, outline: 'none', color: RAM_TEXT }}
+            style={{ width: '100%', marginBottom: 14, border: `1.5px solid ${RAM_GOLD}`, borderRadius: 6, fontSize: 16, padding: 12, outline: 'none', color: RAM_TEXT, boxSizing: 'border-box' }}
           />
+          {/* Champ mot de passe pour l'admin */}
+          {email.trim().toLowerCase() === 'admin@ram-admin.com' && (
+            <input
+              type="password"
+              placeholder="Mot de passe administrateur"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              style={{ width: '100%', marginBottom: 14, border: `1.5px solid ${RAM_GOLD}`, borderRadius: 6, fontSize: 16, padding: 12, outline: 'none', color: RAM_TEXT, boxSizing: 'border-box' }}
+            />
+          )}
           {error && <div style={{ color: RAM_RED, marginBottom: 10, textAlign: 'center' }}>{error}</div>}
-          <button type="submit" disabled={loading} style={{ width: '100%', padding: 14, background: RAM_RED, color: '#fff', border: 'none', borderRadius: 8, fontWeight: 600, fontSize: 18, letterSpacing: 1, boxShadow: '0 2px 8px #a60d1a22', cursor: loading ? 'not-allowed' : 'pointer', transition: 'background 0.2s' }}>
+          <button type="submit" disabled={loading} style={{ width: '100%', padding: 14, background: RAM_RED, color: '#fff', border: 'none', borderRadius: 8, fontWeight: 600, fontSize: 18, letterSpacing: 1, boxShadow: '0 2px 8px #a60d1a22', cursor: loading ? 'not-allowed' : 'pointer', transition: 'background 0.2s', marginBottom: 0 }}>
             {loading ? 'Connexion...' : 'Entrer'}
           </button>
         </form>
